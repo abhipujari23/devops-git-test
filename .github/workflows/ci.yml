@@ -4,31 +4,31 @@ on:
   push:
     branches: [master, dev]
 
-  jobs:
-    docker-build-push:
-      name: Build and Push Docker Image
-      runs-on: ubuntu-latest
+jobs:
+  docker-build-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Login  to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Login  to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} .
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} .
 
-      - name: Push image with commit Tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }}
+    - name: Push image with commit Tag
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }}
 
-      - name: Tag as latest
-        run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} \
-          ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
+    - name: Tag as latest
+      run: |
+        docker tag ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} \
+        ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
 
-      - name: Push latest tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
+    - name: Push latest tag
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
