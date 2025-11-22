@@ -19,16 +19,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} .
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Push image with commit Tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Tag as latest
-        run: |
-          docker tag ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }} \
-          ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
 
-      - name: Push latest tag
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
+      - name: Build and Push bulti-arch image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
+            ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
