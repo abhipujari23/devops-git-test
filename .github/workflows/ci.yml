@@ -32,4 +32,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            mkdir -p devops-project/nginx
+            set -e
+
+            docker stop my-nginx my-python-app
+            docker rm my-nginx my-python-app
+            rm -rf devops-git-test || true
+            git clone https://github.com/abhipujari23/devops-git-test.git
+
+            cd devops-git-test
+
+            docker compose up -d
