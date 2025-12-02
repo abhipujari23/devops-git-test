@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    image: devopsuser23/abhi-docker-test:latest
+    container_name: my-python-app
+    restart: always
+    ports:
+      - "3000:8080"
+
+  nginx:
+    image: nginx:alpine
+    container_name: my-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/error.html:/usr/share/nginx/html/error.html
+    depends_on:
+      - app

@@ -1,12 +1,11 @@
-name: DevOps CI Pipeline
+name: Deploy with Docker Compose
 
 on:
   push:
-    branches: [master, dev]
+    branches: ["main"]
 
 jobs:
-  docker-build-push:
-    name: Build and Push Docker Image
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,30 +18,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-
-      - name: Build and Push bulti-arch image
-        uses: docker/build-push-action@v5
+      - name: Build and Push to Docker Image
+        uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:latest
-            ${{ secrets.DOCKER_USERNAME }}/abhi-docker-test:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
+          tags: devopsuser23/abhi-docker-test:latest
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
           script: |
-            docker pull devopsuser23/abhi-docker-test:latest
-            docker stop abhi-prod || true
-            docker rm abhi-prod || true
-            docker run -d -p 8080:8080 --name abhi-prod devopsuser23/abhi-docker-test:latest
+            mkdir -p devops-project/nginx
